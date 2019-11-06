@@ -26,10 +26,13 @@
     <script src="https://d3js.org/d3.v4.min.js"></script></body>
     <script>
    d3.csv('vehicles.csv', function(err,csvData){
-    var container = d3.select('#d3Id').append('p').
-    text('All India And State-wise Number Of Taxed And Tax-Exempted Motor Vehicles Registered In India'),
-      width = 520,
-      height = 220,
+    var container = d3.select('#d3Id')
+    .append('span')
+    .attr('class','para-head')
+    .text('All India And State-wise Number Of Taxed And Tax-Exempted Motor Vehicles Registered In India : TwoWheelers vs Cars')
+    .style("font-size", "15px")
+      width = 1200,
+      height = 760,
       margin = {top: 30, right: 20, bottom: 30, left: 50},
       barPadding = .2,
       axisTicks = {qty: 5, outerSize: 0, dateFormat: '%m-%d'};
@@ -38,10 +41,10 @@
         .attr("width", width)
         .attr("height", height)
         .append("g")
-        .attr("transform", `translate(70,${margin.top})`);
+        .attr("transform", `translate(70,40)`);
      var xScale0 = d3
             .scaleBand()
-            .range([0, width - margin.left - margin.right])
+            .range([0, width - margin.left - margin.right-200])
             .padding(barPadding)
    
     var xScale1 = d3.scaleBand()
@@ -67,7 +70,7 @@ var model_name = svg.selectAll(".model_name")
   .attr("class", "model_name")
   .attr("transform", d => `translate(${xScale0(d.Year)},0)`);
 
-/* Add field1 bars */
+/* Add field1 bars - TWO WHEELERS*/
 model_name.selectAll(".bar.field1")
   .data(d => [d])
   .enter()
@@ -79,9 +82,33 @@ model_name.selectAll(".bar.field1")
   .attr("width", xScale1.bandwidth())
   .attr("height", d => {
     return height - margin.top - margin.bottom - yScale(d['Twowheelers'])
-  });
+  })
+  .on('mouseover', function(d){
+      d3.select(this).style('fill', '#0ecfb2');
+      // d3.select('svg').data(csvData).enter().append('text').attr('class','explain-bar')
+      // .attr('x', d => xScale1('Cars')).attr("width", xScale1.bandwidth())
   
-/* Add field2 bars */
+    svg.selectAll(".text")  		
+	  .data(csvData)
+	  .enter()
+	  .append("text")
+	  .attr("class","label")
+    .attr("x", (d,i) => {
+      return i * 91
+    })
+	  .attr("y", function(d) { return yScale(d.Twowheelers) + 1; })
+    .attr("y", d => {
+      return  yScale(d.Twowheelers)
+    })
+    .text(function(d) { return `Bikes: ${d.Twowheelers}` });   	  
+    })
+    .on('mouseout', function(d){
+      d3.select(this).style('fill', 'steelblue');
+
+      svg.selectAll(".label").remove()
+    })
+  
+/* Add field2 bars - CARS */
     model_name.selectAll(".bar.field2")
     .data(d => [d])
     .enter()
@@ -89,20 +116,87 @@ model_name.selectAll(".bar.field1")
     .attr("class", "bar field2")
     .style("fill","orange")
     .attr("x", d => xScale1('Cars'))
-    .attr("y", d => yScale(d.Cars))
+    .attr("y", d => {
+      return yScale(d.Cars)
+    })
     .attr("width", xScale1.bandwidth())
     .attr("height", d => {
         return height - margin.top - margin.bottom - yScale(d.Cars)
-    });
+    })
+
+    .on('mouseover', function(d){
+      d3.select(this).style('fill', 'pink');
+      // d3.select('svg').data(csvData).enter().append('text').attr('class','explain-bar')
+      // .attr('x', d => xScale1('Cars')).attr("width", xScale1.bandwidth())
+  
+    svg.selectAll(".bar field2")  		
+	  .data(csvData)
+	  .enter()
+	  .append("text")
+	  .attr("class","label")
+    .attr("x", (d,i) => {
+      return i * 150
+    })
+	  .attr("y", function(d) { return yScale(d.Cars); })
+   
+    .text(function(d) { return `Cars: ${d.Cars}` });   	  
+    })
+    .on('mouseout', function(d){
+      d3.select(this).style('fill', 'orange');
+
+      svg.selectAll(".label").remove()
+
+    })
 
    // Add . . the X Axis
    svg.append("g")
      .attr("class", "x axis")
      .attr("transform", `translate(0,${height - margin.top -  margin.bottom})`)
      .call(xAxis);// Add the Y Axis
-svg.append("g")
+      svg.append("g")
      .attr("class", "y axis")
      .call(yAxis);
+
+    //Legends
+  var colors = [ ["Twowheelers", "steelblue"],
+               ["Cars", "orange"] ];
+  // add legend   
+  var legend = svg.append("g")
+		.attr("class", "legend")
+		.attr("height", 100)
+		.attr("width", 100)
+		.attr('transform', 'translate(-20,50)');
+
+  var legendRect = legend.selectAll("rect").data(colors);
+
+  legendRect.enter()
+    .append("rect")
+    .attr("x", width-240)
+    .attr("width", 20)
+    .attr("height", 20)
+    .attr('fill',function(d){
+      // console.log(d[1])
+      return d[1]
+    })
+    .attr('y', function(d,i){
+      return i* 40
+    });
+
+var legendText = legend
+.selectAll('text')
+.data(colors)
+.enter()
+.append('text')
+.attr('x',width-167)
+.attr('y', function(d,i){
+  console.log(d)
+  console.log(i)
+  return i * 40+ 16
+})
+    .text(function(d) {
+      // console.log(d[0])
+        return d[0];
+    });
 
    }) // END
 
