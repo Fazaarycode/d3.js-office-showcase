@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>updating a bar chart with d3.js (v4)</title>
+    <!-- <script src="https://d3js.org/d3.v4.min.js"></script>
+     -->
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+</head>
+
+<style>
+    .radio {
+        text-align: center;
+    }
+
+    .row {
+        text-align: center;
+    }
+</style>
+
+
+
+<body>
+    <div class='container'>
+        <div class='row'>
+            <h2> Railway earnings per category in Years</h2>
+            <div class='radio'>
+                <label class='radio-inline'>
+                    <input type="radio" name="gender" value="1. Coaching Earnings:" onclick='change(this.value)'>
+                    Coaching Earnings
+                </label>
+                <label class='radio-inline'>
+                    <input type="radio" name="gender" value="(A) Passenger earnings" onclick='change(this.value)'>
+                    Passenger earnings
+                </label>
+                <label class='radio-inline'>
+                    <input type="radio" name="gender" value="(B) Other coaching earnings" onclick='change(this.value)' checked>Other coaching earnings
+                </label>
+            </div>
+            <svg class='chart'>
+            </svg>
+        </div>
+    </div>
+</body>
+<script>
+const json = {
+    "fields": [{
+        "id": "a",
+        "label": "Category",
+        "type": "string"
+    }, {
+        "id": "b",
+        "label": "Item",
+        "type": "string"
+    }, {
+        "id": "c",
+        "label": "2001-02",
+        "type": "string"
+    }, {
+        "id": "d",
+        "label": "2002-03",
+        "type": "string"
+    }, {
+        "id": "e",
+        "label": "2003-04",
+        "type": "string"
+    }, {
+        "id": "f",
+        "label": "2004-05",
+        "type": "string"
+    }, {
+        "id": "g",
+        "label": "2005-06",
+        "type": "string"
+    }, {
+        "id": "h",
+        "label": "2006-07",
+        "type": "string"
+    }, {
+        "id": "i",
+        "label": "2007-08",
+        "type": "string"
+    }, {
+        "id": "j",
+        "label": "2008-09",
+        "type": "string"
+    }, {
+        "id": "k",
+        "label": "2009-10",
+        "type": "string"
+    }, {
+        "id": "l",
+        "label": "2010-11",
+        "type": "string"
+    }, {
+        "id": "m",
+        "label": "2011-12",
+        "type": "string"
+    }, {
+        "id": "n",
+        "label": "2012-13",
+        "type": "string"
+    }, {
+        "id": "o",
+        "label": "2013-14",
+        "type": "string"
+    }, {
+        "id": "p",
+        "label": "2014-15",
+        "type": "string"
+    }],
+    "data": [
+        ["1. Coaching Earnings", "1. Coaching Earnings:", "12068.69", "13563.39", "14220.61", "15102.83", "16233.26", "18942.28", "21644.47", "23902.98", "25723.29", "28175.49", "30962.96", "34377.07", "40210.78", "46187.5"],
+        ["1. Coaching Earnings", "(A) Passenger earnings", "11196.45", "12575.44", "13298.33", "14113.67", "15080.77", "17224.55", "19844.17", "21931.32", "23488.17", "25705.64", "28246.43", "31322.84", "36532.25", "42189.61"],
+        ["1. Coaching Earnings", "(B) Other coaching earnings", "8722.43", "9879.49", "9222.83", "9891.59", "1152.49", "1717.72", "1800.01", "1971.66", "2235.01", "2469.84", "2716.53", "3054.23", "3678.52", "3997.9"],
+        ["2. Goods earnings (1)", "2. Goods earnings (1)", "24845.4", "26504.83", "27617.96", "30778.42", "36286.98", "41716.52", "47434.9", "53433.42", "58501.68", "62844.72", "69547.59", "85262.58", "93905.63", "105791.34"],
+        ["3. Other miscellaneous earnings(Excluding Rent& Toll)", "3. Other miscellaneous earnings(Excluding Rent& Toll)", "9444.51", "1179.52", "1003.59", "1157.03", "1772.6", "1711.7", "2565.29", "2500.66", "2879.68", "3215.8", "3401.47", "4094.61", "5526.08", "4876.67"]
+    ]
+}
+var label = []
+var obj = {}
+var finalArray = []
+json.fields.map(val => label.push(val.label))
+var myData = json.data
+for (var i = 0; i < myData.length; i++) {
+    const ab = myData[i];
+    for (var j = 0; j < ab.length; j++) {
+        obj[`${label[j]}`] = ab[j]
+    }
+    finalArray.push(obj)
+    obj = {}
+}
+var type1= [];
+var type2 = [];
+var type3 = [];
+for(var i = 0; i < finalArray.length; i++){
+	if(finalArray[i]["Item"] === "1. Coaching Earnings:"){
+		type1.push(finalArray[i]);
+	}else if(finalArray[i]["Item"] === "(A) Passenger earnings"){
+		type2.push(finalArray[i]);
+    }
+    else if(finalArray[i]['Item']==='(B) Other coaching earnings'){
+        type3.push(finalArray[i]);
+    }
+}
+function change(value){
+console.log(value);
+if(value === '1. Coaching Earnings:'){
+    update(type1);
+}else if(value === '(A) Passenger earnings'){
+    update(type2);
+}
+else{
+    update(type3)
+}
+}// change() ends
+function update(data){
+    //YEARS
+    const YEARS = [
+            '2001-02',
+            '2002-03',
+            '2003-04',
+            '2004-05',
+            '2005-06',
+             ]  
+            /*
+            '2006-07',
+            '2007-08',
+            '2008-09',
+            '2009-10',
+            '2010-11',
+            '2011-12',
+            '2012-13',
+            '2013-14',
+            '2014-15'
+            */ 
+	//set domain for the x axis
+    // xChart.domain(YEARS.map(function(d){ return d }) );
+    xChart.domain([2002,2003])
+    //set domain for y axis
+    
+	yChart.domain([0, 20000 ]);
+	
+	//get the width of each bar 
+	var barWidth = width / data.length;
+	
+	//select all bars on the graph, take them out, and exit the previous data set. 
+	//then you can add/enter the new data set
+	var bars = chart.selectAll(".bar")
+					.remove()
+					.exit()
+					.data(data)		
+	//now actually give each rectangle the corresponding data
+	bars.enter()
+		.append("rect")
+		.attr("class", "bar")
+		.attr("x", function(d, i){
+            return i * barWidth + 1 })
+		.attr("y", function(d,i){ 
+                return yChart(d['2003-04'])
+        })
+		.attr("height", function(d,i){ 
+            return height- yChart(d['2003-04'])
+
+        })
+		.attr("width", barWidth - 1)
+		.attr("fill", function(d){ 
+			if(d.Item === "(A) Passenger earnings"){
+				return "teal";
+			}else if(d.Item === "1. Coaching Earnings:"){
+				return "red";
+            }
+            else{
+                return 'lightblue'
+            }
+		});
+	//left axis
+	chart.select('.y')
+		  .call(yAxis)
+	//bottom axis
+	chart.select('.xAxis')
+		.attr("transform", "translate(0," + height + ")")
+		.call(xAxis)
+		.selectAll("text")
+			.style("text-anchor", "end")
+			.attr("dx", "-.8em")
+			.attr("dy", ".15em")
+			.attr("transform", function(d){
+				return "rotate(-65)";
+			});
+			
+}//end update
+
+//set up chart
+var margin = {top: 20, right: 20, bottom: 95, left: 50};
+var width = 800;
+var height = 500;
+
+var chart = d3.select(".chart")
+				.attr("width", width + margin.left + margin.right)
+				.attr("height", height + margin.top + margin.bottom)
+				.append("g")
+				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var xChart = d3.scaleBand()
+				.range([0, width]);
+				
+var yChart = d3.scaleLinear()
+				.range([height, 0]);
+
+var xAxis = d3.axisBottom(xChart);
+var yAxis = d3.axisLeft(yChart);
+
+//set up axes
+//left axis
+	chart.append("g")
+		  .attr("class", "y axis")
+		  .call(yAxis)
+		  
+	//bottom axis
+	chart.append("g")
+		.attr("class", "xAxis")
+		.attr("transform", "translate(0," + height + ")")
+		.call(xAxis)
+		.selectAll("text")
+			.style("text-anchor", "end")
+			.attr("dx", "-.8em")
+			.attr("dy", ".15em")
+			.attr("transform", function(d){
+				return "rotate(-65)";
+			});
+
+//add labels
+chart
+	.append("text")
+	.attr("transform", "translate(-35," +  (height+margin.bottom)/2 + ") rotate(-90)")
+	.text("% of total watch time");
+		
+chart
+	.append("text")
+	.attr("transform", "translate(" + (width/2) + "," + (height + margin.bottom - 5) + ")")
+	.text("age group");
+
+//use bothData to begin with
+update(type3);
+</script>
+</html> 
